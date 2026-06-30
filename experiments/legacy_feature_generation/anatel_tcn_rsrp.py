@@ -152,4 +152,4 @@ regressor_json = regressor.to_json()
 with open('tcn_rsrp.json', 'w') as json_file:
     json_file.write(regressor_json)
 
-regressor.save_weights('tcn_rsrp.h5')
+regressor.save_weights('anatel_tcn_rsrp.weights.h5')

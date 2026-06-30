@@ -12,45 +12,45 @@ import numpy as np
 import pandas as pd
 
 ## read CSV
-#df = pd.read_csv('anatel_concatbases.csv')
-## get variables for label and previsores
-#label = df['50'].values
-#inputs = df.loc[:, df.columns != '50'].values
-#
-#
-#from collections import Counter
-#counter = Counter(label)
-#print(counter)
+df = pd.read_csv('anatel_concatbases.csv')
+# get variables for label and previsores
+label = df['50'].values
+inputs = df.loc[:, df.columns != '50'].values
 
-#nova = df[df['50']==1]
-#shuffle = df[df['50'] != 1].sample(n = 2000)
-#nova2 = pd.concat([nova, shuffle], ignore_index=True, sort=False)
+
+from collections import Counter
+counter = Counter(label)
+print(counter)
+
+nova = df[df['50']==1]
+shuffle = df[df['50'] != 1].sample(n = 2000)
+nova2 = pd.concat([nova, shuffle], ignore_index=True, sort=False)
+
+label = nova2['50'].values
+inputs = nova2.loc[:, df.columns != '50'].values
+
+
+from imblearn.under_sampling import TomekLinks
+tomek = TomekLinks()
+inputs, label = tomek.fit_resample(inputs, label)
 #
-#label = nova2['50'].values
-#inputs = nova2.loc[:, df.columns != '50'].values
-#
-#
-#from imblearn.under_sampling import TomekLinks
-#tomek = TomekLinks()
-#inputs, label = tomek.fit_resample(inputs, label)
-#
-#from collections import Counter
-#counter = Counter(label)
-#print(counter)
+from collections import Counter
+counter = Counter(label)
+print(counter)
 ##
-#from imblearn.over_sampling import SMOTE
-#smote = SMOTE()
-#
-#inputs, label = smote.fit_resample(inputs, label)
-#counter = Counter(label)
-#print(counter)
-#
+from imblearn.over_sampling import SMOTE
+smote = SMOTE()
+
+inputs, label = smote.fit_resample(inputs, label)
+counter = Counter(label)
+print(counter)
+
 #
 ## save new database for classification
-#classifybase = pd.DataFrame(inputs)
-#classifybase['label'] = label
-#classifybase.to_csv('anatel_classifybase.csv', index=False)
-#
+classifybase = pd.DataFrame(inputs)
+classifybase['label'] = label
+classifybase.to_csv('anatel_classifybase.csv', index=False)
+
 
 # read CSV
 df = pd.read_csv('anatel_classifybase.csv')

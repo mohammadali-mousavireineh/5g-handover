@@ -54,26 +54,32 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 # starting regressor
 regressor = Sequential()
-
-regressor.add(GRU(units=120, return_sequences=True, input_shape=(prev.shape[1], 1)))
+regressor.add(LSTM(units = 120, return_sequences = True, input_shape = (prev.shape[1], 1)))
+# using dropout to avoid overfitting
 regressor.add(Dropout(0.3))
 
-regressor.add(GRU(units=50, return_sequences=True))
+# more layers
+regressor.add(LSTM(units = 50, return_sequences = True))
 regressor.add(Dropout(0.3))
 
-regressor.add(GRU(units=50))
+# more layers
+regressor.add(LSTM(units = 50, return_sequences = True))
 regressor.add(Dropout(0.3))
 
-regressor.add(Dense(units=1, activation='linear'))
+## more layers
+#regressor.add(LSTM(units = 50, return_sequences = True))
+#regressor.add(Dropout(0.3))
 
-regressor.compile(
-    optimizer='rmsprop',
-    loss='mean_squared_error',
-    metrics=['mean_absolute_error']
-)
+# more layers
+regressor.add(LSTM(units = 50))
+regressor.add(Dropout(0.3))
 
 
+# final layer
+regressor.add(Dense(units = 1, activation = 'linear'))
 
+# compiling
+regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error', metrics = ['mean_absolute_error'])
 history = regressor.fit(prev, real_rsrp, epochs = 100, batch_size = 128, validation_split=0.1)
 
 
@@ -123,9 +129,14 @@ plt.grid()
 plt.show()
 
 
+# saving LSTM neural network
 regressor_json = regressor.to_json()
+with open('anatel_lstm_rsrp.json', 'w') as json_file:
+   json_file.write(regressor_json)
+regressor.save_weights('anatel_lstm_rsrp.weights.h5')
+   
 
-with open('gru_rsrp.json', 'w') as json_file:
-    json_file.write(regressor_json)
-
-regressor.save_weights('gru_rsrp.h5')
+# saving history variable from Keras training
+history_df = pd.DataFrame(history.history)
+with open('anatel_history_lstm.csv', mode='w') as f:
+   history_df.to_csv(f, index=False)
