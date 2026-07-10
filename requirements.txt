@@ -1,5 +1,6 @@
-numpy>=1.23
-pandas>=1.5
-scikit-learn>=1.2
-imbalanced-learn>=0.10
-matplotlib>=3.7
+numpy
+pandas
+scikit-learn
+matplotlib
+tensorflow>=2.10
+joblib

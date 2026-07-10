@@ -1,4 +1,0 @@
-# Optional dependencies for retraining the LSTM/GRU/TCN RSRP predictors.
--r requirements.txt
-tensorflow>=2.12
-keras>=2.12

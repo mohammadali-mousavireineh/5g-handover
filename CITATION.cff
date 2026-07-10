@@ -1,24 +1,9 @@
 cff-version: 1.2.0
-title: "Enhanced 5G Handover Prediction over Real-Network RSRP Traces Using Lightweight Temporal Neural Representations"
-message: "If you use this repository, please cite the associated manuscript and repository."
+title: Deep Temporal Feature Optimization for 5G Handover Prediction
+message: If you use this software, please cite the accompanying manuscript.
 authors:
-  - family-names: "Mousavireineh"
-    given-names: "Mohammadali"
-    email: "mousavireineh@gmail.com"
-  - family-names: "Mousavireineh"
-    given-names: "Astra"
+  - family-names: Mousavireineh
+    given-names: Mohammadali
+  - family-names: Mousavi
+    given-names: Seyedmohammad
 year: 2026
-version: "1.1.0"
-license: MIT
-type: software
-repository-code: "https://github.com/<your-username>/<your-repository-name>"
-abstract: "Source code, processed ANATEL RSRP feature bases, results, figures, and manuscript files for comparing LSTM, GRU, and TCN temporal representations in 5G handover prediction."
-keywords:
-  - 5G
-  - handover prediction
-  - RSRP
-  - LSTM
-  - GRU
-  - TCN
-  - mobility management
-  - machine learning

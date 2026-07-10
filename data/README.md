@@ -1,17 +1,9 @@
-# Data
+# Data instructions
 
-This folder contains the processed feature bases used in the associated paper:
+Raw datasets are not bundled by default unless redistribution is explicitly permitted.
 
-**Enhanced 5G Handover Prediction over Real-Network RSRP Traces Using Lightweight Temporal Neural Representations**
+- D1: obtain from the jpshlima/lstm-handover repository and follow its license/citation guidance.
+- D2: obtain from Mendeley Data DOI 10.17632/dx5xyyfz2y.1.
+- D3: obtain from Mendeley Data DOI 10.17632/khxgr6m8wz.1.
 
-## Files
-
-- `processed/anatel_concatbases.csv`: LSTM-generated predicted-RSRP windows and labels.
-- `processed/anatel_concatbases_gru.csv`: GRU-generated predicted-RSRP windows and labels.
-- `processed/anatel_concatbases_tcn.csv`: TCN-generated predicted-RSRP windows and labels.
-
-Each CSV has 50 temporal feature columns and one binary label column.
-
-## Important note
-
-The raw drive-test files are not included in this GitHub-ready package. The processed feature bases are included so the main classifier comparison can be reproduced directly.
+Place the files in the folder structure described in the main README.
