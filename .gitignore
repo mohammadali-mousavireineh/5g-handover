@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.DS_Store
+.ipynb_checkpoints/
+
+# Raw/public datasets are downloaded from the original sources
+src/datasets/**
+!src/datasets/README.md
+
+# Generated confirmatory artifacts (reproducible; can be large)
+src/d3_confirmatory_natural_test_outputs/
+*.keras
+*.joblib
+*.mmap
+*.npy
+*_natural_test_predictions.csv.gz

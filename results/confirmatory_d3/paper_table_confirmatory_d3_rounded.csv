@@ -1,0 +1,5 @@
+pipeline,precision_mean,precision_std,recall_mean,recall_std,f1_mean,f1_std,average_precision_mean,average_precision_std,event_recall_mean,event_recall_std,false_positives_per_1000_mean,false_positives_per_1000_std
+raw_windows_random_forest,0.397,0.036,0.663,0.020,0.496,0.026,0.420,0.037,0.884,0.021,14.7,2.3
+temporal_engineering_random_forest,0.383,0.025,0.703,0.032,0.495,0.022,0.420,0.028,0.900,0.025,16.4,2.1
+combined_deep_features_random_forest,0.374,0.030,0.685,0.062,0.482,0.015,0.399,0.024,0.874,0.031,16.7,3.4
+validation_selected_pipeline,0.399,0.035,0.659,0.015,0.496,0.026,0.423,0.036,0.881,0.016,14.5,2.2

@@ -1,0 +1,23 @@
+{
+  "paper_seeds": [1, 7, 21, 42, 100],
+  "window_size_samples": 10,
+  "handover_horizon_samples": 5,
+  "exploratory_test_fraction": 0.20,
+  "confirmatory_d3": {
+    "test_group_fraction": 0.20,
+    "validation_group_fraction": 0.15,
+    "train_negative_to_positive_ratio_cap": 4,
+    "train_max_windows": 30000,
+    "random_forest_trees": 250,
+    "deep_epochs": 25,
+    "deep_batch_size": 32,
+    "deep_patience": 5,
+    "candidate_pipelines": [
+      "raw_windows_random_forest",
+      "temporal_engineering_random_forest",
+      "combined_deep_features_random_forest"
+    ],
+    "selection_metric": "natural-prevalence validation F1",
+    "test_used_for_selection": false
+  }
+}
