@@ -1,9 +1,12 @@
 cff-version: 1.2.0
-title: Deep Temporal Feature Optimization for 5G Handover Prediction
-message: If you use this software, please cite the accompanying manuscript.
+title: "Temporal Feature Representations for 5G Handover Prediction: Cross-Dataset Evaluation with Proxy and Event-Log Labels"
+message: "If you use this software or derived results, please cite the accompanying manuscript."
+type: software
 authors:
   - family-names: Mousavireineh
     given-names: Mohammadali
   - family-names: Mousavi
     given-names: Seyedmohammad
 year: 2026
+repository-code: "https://github.com/mohammadali-mousavireineh/5g-handover"
+license: MIT

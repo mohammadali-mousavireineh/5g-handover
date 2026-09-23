@@ -1,0 +1,16 @@
+{
+  "session_col": "oran_session_id",
+  "time_col": "oran_sample_order",
+  "cell_col": "CELL",
+  "official_target_col_detected": "handover_event_marker",
+  "target_source": "official_column:handover_event_marker;mode:future_horizon",
+  "rows_after_target_creation": 466861,
+  "positive_ratio_after_target_creation": 0.014263346049466543,
+  "raw_measurement_rows": 467799,
+  "target_ready_rows": 466861,
+  "window_endpoints": 465425,
+  "groups_with_windows": 148,
+  "natural_window_positive_ratio": 0.014021593167535049,
+  "raw_event_records_loaded": 1763,
+  "protocol": "group split before train-only sampling; natural validation and test"
+}

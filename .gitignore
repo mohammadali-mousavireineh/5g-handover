@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Raw datasets (not redistributed)
+src/datasets/d1_anatel_ufjf_raw/
+src/datasets/d2_urban_multi_operator/
+src/datasets/d3_oran_7_2_handover_events/
+
+# Newly generated run outputs. Archived paper outputs under results/ stay tracked.
+src/multi_dataset_outputs/
+src/d3_confirmatory_natural_test_outputs/
+
+# Large transient model/checkpoint files
+*.h5
+*.keras
+*.ckpt
+*.joblib

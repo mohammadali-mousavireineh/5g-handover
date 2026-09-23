@@ -1,0 +1,28 @@
+{
+  "seeds": [
+    1,
+    7,
+    21,
+    42,
+    100
+  ],
+  "window_size": 10,
+  "handover_horizon_samples": 5,
+  "test_group_fraction": 0.2,
+  "validation_group_fraction": 0.15,
+  "train_negative_to_positive_ratio": 4,
+  "train_max_windows": 30000,
+  "raw_chunk_size": 5000,
+  "engineered_chunk_size": 750,
+  "deep_chunk_size": 512,
+  "rf_trees": 250,
+  "rf_n_jobs": 2,
+  "deep_epochs": 25,
+  "deep_batch_size": 32,
+  "models": [
+    "raw_windows_random_forest",
+    "temporal_engineering_random_forest",
+    "combined_deep_features_random_forest"
+  ],
+  "latest_base_code": "multi_dataset_handover_feature_optimization_v4_memory_safe.py"
+}
