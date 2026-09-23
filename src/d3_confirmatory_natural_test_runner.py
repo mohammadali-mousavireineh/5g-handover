@@ -998,3 +998,208 @@ def run_seed(
     plt.figure(figsize=(7, 5))
     for model_name in MODEL_ORDER:
         p, r, _ = precision_recall_curve(y_test, model_prob_test[model_name])
+        ap = average_precision_score(y_test, model_prob_test[model_name])
+        plt.plot(r, p, label=f"{model_name} (AP={ap:.3f})")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    plt.title(f"D3 natural-prevalence test PR curves — seed {seed}")
+    plt.legend(fontsize=7)
+    plt.tight_layout()
+    plt.savefig(seed_dir / "natural_test_precision_recall_curves.png", dpi=300, bbox_inches="tight")
+    plt.close()
+
+    elapsed = time.time() - start_time
+    json_dump(done_file, {
+        "seed": seed,
+        "completed": True,
+        "elapsed_seconds": elapsed,
+        "selected_model": selected_model,
+        "natural_test_positive_ratio": float(y_test.mean()),
+    })
+    print(f"\nSeed {seed} complete in {elapsed / 3600:.2f} hours")
+    return test_df
+
+
+# =============================================================================
+# Aggregate report for manuscript and repository
+# =============================================================================
+def aggregate_outputs(root: Path, all_test: pd.DataFrame, dataset_info: dict, feature_info: dict) -> None:
+    all_test.to_csv(root / "confirmatory_natural_test_all_seeds.csv", index=False)
+
+    numeric_metrics = [
+        "positive_ratio", "predicted_positive_ratio", "accuracy", "balanced_accuracy",
+        "precision", "recall", "specificity", "f1", "mcc",
+        "pr_auc_average_precision", "roc_auc", "brier_score",
+        "false_positives_per_1000_negative_windows", "event_level_recall",
+        "median_first_alert_lead_samples", "mean_alert_windows_per_detected_event",
+    ]
+    agg = all_test.groupby("model")[numeric_metrics].agg(["mean", "std", "min", "max"]).reset_index()
+    agg.columns = ["_".join([x for x in c if x]) if isinstance(c, tuple) else c for c in agg.columns]
+    agg.to_csv(root / "confirmatory_natural_test_aggregate.csv", index=False)
+
+    selected = all_test[all_test["selected_by_validation"] == True].copy()  # noqa: E712
+    selected.to_csv(root / "validation_selected_model_test_results.csv", index=False)
+
+    # Paper-ready summary in plain language, using only completed results.
+    lines = [
+        "# D3 confirmatory natural-prevalence evaluation",
+        "",
+        "## Why this run was added",
+        "The exploratory D3 benchmark sampled negatives before splitting. This confirmatory run assigns complete sessions to train, validation, and test first, samples negatives only in training, chooses thresholds/models on validation, and evaluates an untouched natural-prevalence test set in memory-safe chunks.",
+        "",
+        "## Dataset and protocol",
+        f"- Target-ready D3 rows: {dataset_info.get('rows_after_target_creation')}",
+        f"- Original row-level positive ratio: {dataset_info.get('positive_ratio_after_target_creation')}",
+        f"- Numeric base features: {feature_info.get('numeric_feature_count')}",
+        f"- Seeds completed: {sorted(all_test['seed'].unique().tolist())}",
+        "- Train sampling: all available positive train windows plus at most four negatives per positive, capped at 30,000 windows.",
+        "- Validation/test sampling: none.",
+        "- Threshold: selected independently on the natural-prevalence validation set for each configuration.",
+        "",
+        "## Aggregate test results",
+    ]
+    for _, row in agg.iterrows():
+        lines.extend([
+            f"### {row['model']}",
+            f"- F1: {row['f1_mean']:.4f} ± {row['f1_std']:.4f}",
+            f"- Precision: {row['precision_mean']:.4f} ± {row['precision_std']:.4f}",
+            f"- Recall: {row['recall_mean']:.4f} ± {row['recall_std']:.4f}",
+            f"- PR-AUC/AP: {row['pr_auc_average_precision_mean']:.4f} ± {row['pr_auc_average_precision_std']:.4f}",
+            f"- MCC: {row['mcc_mean']:.4f} ± {row['mcc_std']:.4f}",
+            f"- Event-level recall: {row['event_level_recall_mean']:.4f} ± {row['event_level_recall_std']:.4f}",
+            "",
+        ])
+
+    lines.extend([
+        "## Manuscript update guidance",
+        "Replace the sampled-subset D3 precision/F1 claim with the natural-test result above. Keep the earlier sampled benchmark only as exploratory evidence, or move it to a supplementary table. Update Methods to state that session splitting preceded train-only negative sampling and that threshold/model selection used validation. Update Limitations to remove the resolved class-prior and test-selection concerns, while retaining the sample-based horizon and D1 random-split limitations.",
+        "",
+        "## Repository files to commit",
+        "- d3_confirmatory_natural_test_runner.py",
+        "- confirmatory_natural_test_all_seeds.csv",
+        "- confirmatory_natural_test_aggregate.csv",
+        "- validation_selected_model_test_results.csv",
+        "- per-seed validation/test metrics and PR curves",
+    ])
+    (root / "PAPER_AND_GITHUB_UPDATE_GUIDE.md").write_text("\n".join(lines), encoding="utf-8")
+
+    # Compact chart of natural-test F1/precision/recall.
+    chart = agg[["model", "precision_mean", "recall_mean", "f1_mean"]].copy()
+    x = np.arange(len(chart))
+    width = 0.25
+    plt.figure(figsize=(10, 5))
+    plt.bar(x - width, chart["precision_mean"], width, label="Precision")
+    plt.bar(x, chart["recall_mean"], width, label="Recall")
+    plt.bar(x + width, chart["f1_mean"], width, label="F1")
+    plt.xticks(x, chart["model"], rotation=20, ha="right")
+    plt.ylabel("Natural-test score")
+    plt.title("D3 confirmatory evaluation on untouched natural-prevalence test sessions")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(root / "confirmatory_natural_test_precision_recall_f1.png", dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+# =============================================================================
+# Main
+# =============================================================================
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="D3 confirmatory natural-prevalence evaluation")
+    parser.add_argument("--quick", action="store_true", help="Run only seed 42; model sizes remain paper-grade.")
+    parser.add_argument("--force", action="store_true", help="Re-run completed seeds and overwrite their outputs.")
+    parser.add_argument("--output", type=str, default=OUTPUT_ROOT_NAME, help="Output directory name/path.")
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    configure_tensorflow_memory()
+    seeds = QUICK_SEEDS if args.quick else FULL_SEEDS
+
+    script_dir = Path(__file__).resolve().parent
+    root = Path(args.output)
+    if not root.is_absolute():
+        root = script_dir / root
+    root.mkdir(parents=True, exist_ok=True)
+
+    cfg = d3_config()
+    print("Loading full D3 data once. Validation and test will remain unsampled.")
+    raw = base.load_dataset_csvs(cfg)
+    labeled, target_info = base.create_target_and_order(raw, cfg)
+    labeled = labeled.sort_values(["drive_id", "sample_order"]).reset_index(drop=True)
+
+    feature_cols, feature_info = detect_numeric_feature_columns(labeled, target_info)
+    x_nan = build_numeric_matrix_with_nan(labeled, feature_cols)
+    endpoint_table, group_slices = make_endpoint_table(labeled)
+    group_stats = group_stats_from_endpoints(endpoint_table)
+
+    dataset_info = {
+        **target_info,
+        "raw_measurement_rows": int(len(raw)),
+        "target_ready_rows": int(len(labeled)),
+        "window_endpoints": int(len(endpoint_table)),
+        "groups_with_windows": int(group_stats.shape[0]),
+        "natural_window_positive_ratio": float(endpoint_table["y"].mean()),
+        "raw_event_records_loaded": int(labeled["official_event_binary"].sum()),
+        "protocol": "group split before train-only sampling; natural validation and test",
+    }
+    json_dump(root / "dataset_and_protocol_report.json", dataset_info)
+    json_dump(root / "feature_report.json", feature_info)
+    endpoint_table.groupby("source_file")["y"].agg(["size", "sum", "mean"]).to_csv(
+        root / "window_distribution_by_source_file.csv"
+    )
+
+    all_test_parts = []
+    for seed in seeds:
+        try:
+            part = run_seed(
+                seed, root, labeled, x_nan, feature_cols, endpoint_table,
+                group_slices, group_stats, args.force
+            )
+            all_test_parts.append(part)
+        except MemoryError as exc:
+            raise SystemExit(
+                "Python ran out of memory. Reduce ENGINEERED_CHUNK_SIZE to 256 and "
+                "TRAIN_MAX_WINDOWS to 20000, then rerun; completed seeds will be resumed."
+            ) from exc
+        finally:
+            gc.collect()
+
+    if not all_test_parts:
+        raise RuntimeError("No seed results were produced.")
+    all_test = pd.concat(all_test_parts, ignore_index=True)
+    aggregate_outputs(root, all_test, dataset_info, feature_info)
+
+    run_config = {
+        "seeds": seeds,
+        "window_size": WINDOW_SIZE,
+        "handover_horizon_samples": HANDOVER_HORIZON,
+        "test_group_fraction": TEST_GROUP_FRACTION,
+        "validation_group_fraction": VALIDATION_GROUP_FRACTION,
+        "train_negative_to_positive_ratio": TRAIN_NEGATIVE_TO_POSITIVE_RATIO,
+        "train_max_windows": TRAIN_MAX_WINDOWS,
+        "raw_chunk_size": RAW_CHUNK_SIZE,
+        "engineered_chunk_size": ENGINEERED_CHUNK_SIZE,
+        "deep_chunk_size": DEEP_CHUNK_SIZE,
+        "rf_trees": RF_TREES,
+        "rf_n_jobs": RF_N_JOBS,
+        "deep_epochs": DEEP_EPOCHS,
+        "deep_batch_size": DEEP_BATCH_SIZE,
+        "models": MODEL_ORDER,
+        "latest_base_code": "multi_dataset_handover_feature_optimization_v4_memory_safe.py",
+    }
+    json_dump(root / "confirmatory_run_config.json", run_config)
+
+    print("\n" + "=" * 96)
+    print("D3 CONFIRMATORY RUN COMPLETE")
+    print("=" * 96)
+    print(f"Outputs: {root.resolve()}")
+    print("Send back the whole output folder or these three files:")
+    print("  - confirmatory_natural_test_all_seeds.csv")
+    print("  - confirmatory_natural_test_aggregate.csv")
+    print("  - validation_selected_model_test_results.csv")
+    print("I will then update both the manuscript results and the GitHub repository package.")
+
+
+if __name__ == "__main__":
+    main()

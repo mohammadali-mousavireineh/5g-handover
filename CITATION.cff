@@ -1,19 +1,12 @@
 cff-version: 1.2.0
-title: "Temporal Feature Representations for 5G Handover Prediction"
-message: "If you use this software or its derived results, please cite the accompanying manuscript and repository."
+title: "Temporal Feature Representations for 5G Handover Prediction: Cross-Dataset Evaluation with Proxy and Event-Log Labels"
+message: "If you use this software or derived results, please cite the accompanying manuscript."
 type: software
 authors:
-  - family-names: "Mousavireineh"
-    given-names: "Mohammadali"
-  - family-names: "Mousavi"
-    given-names: "Seyedmohammad"
+  - family-names: Mousavireineh
+    given-names: Mohammadali
+  - family-names: Mousavi
+    given-names: Seyedmohammad
 year: 2026
-license: MIT
 repository-code: "https://github.com/mohammadali-mousavireineh/5g-handover"
-keywords:
-  - 5G
-  - handover prediction
-  - O-RAN
-  - mobility management
-  - machine learning
-  - temporal feature engineering
+license: MIT

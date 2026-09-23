@@ -1,0 +1,4 @@
+comparison,statistic,p_value
+Raw RF vs Temporal RF,6.0,0.8125
+Raw RF vs Combined RF,3.0,0.3125
+Temporal RF vs Combined RF,0.0,0.0625
